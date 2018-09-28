@@ -29,14 +29,50 @@ let server = http.createServer(function (req,res){
 
   req.on('end',()=>{
     buffer+=decoder.end();
-      //Log the request path
-      console.log('Payload: ',buffer+ ' came in ' + i + ' pieces');
-    //Get the query string as an object
+    //Chose the handler this request should go to, if one is not found go to 404
+    let chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
+    //Construct the data object to send to the handler
     let queryStringObject = parsedUrl.query;
-    //Send the response
-    res.end('Hello World\n');
+    let data = {
+      'trimmedPath': trimmedPath,
+      'queryStringObject': queryStringObject,
+      'headers': headers,
+      'payload': buffer,
+    };
+    //Route the request to the hanlder specified in the router
+    chosenHandler(data,(statusCode, payload) => {
+      //use the status code called back by the handler or default to 200
+      //Use the payload called back by the handler or defailt to an empty object
+      statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+      payload = typeof(payload) == 'object' ? payload : {};
+      // Convert payload to string
+      let payloadString = JSON.stringify(payload);
+      res.setHeader('content-type','application/json');      
+      res.writeHead(statusCode);
+      res.end(payloadString);
+      //Log the requset path
+      console.log('Returning this response: ',statusCode, payloadString);
+    });
   })
+
 });
+
+//Define handlers
+let handlers = {}
+
+//Sample handler
+handlers.sample = function (data,callback){
+  //Callback a http status code and a Payload object
+  callback(406, {'name': 'sample-handler'});
+};
+//Not found handler
+handlers.notFound = function(data,callback){
+  callback(404);
+};
+// Define a request router
+let router = {
+  'sample': handlers.sample
+};
 
 //Start the server, and have it listen on port 3000
 server.listen(3000, function (){

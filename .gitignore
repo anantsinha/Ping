@@ -103,6 +103,8 @@ typings/
 
 # Serverless directories
 .serverless
-
-
 # End of https://www.gitignore.io/api/node,macos
+
+#Test files
+i2.js
+i3.js
