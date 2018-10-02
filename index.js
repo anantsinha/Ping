@@ -6,6 +6,7 @@
 //Dependencies
 const http = require('http');
 const url = require('url');
+const config = require('./config');
 const StringDecoder = require('string_decoder').StringDecoder;
 // The server should respond to all requests with a string
 let server = http.createServer(function (req,res){
@@ -47,7 +48,7 @@ let server = http.createServer(function (req,res){
       payload = typeof(payload) == 'object' ? payload : {};
       // Convert payload to string
       let payloadString = JSON.stringify(payload);
-      res.setHeader('content-type','application/json');      
+      res.setHeader('content-type','application/json');
       res.writeHead(statusCode);
       res.end(payloadString);
       //Log the requset path
@@ -74,7 +75,7 @@ let router = {
   'sample': handlers.sample
 };
 
-//Start the server, and have it listen on port 3000
-server.listen(3000, function (){
-  console.log('The server is listening on port 3000');
+//Start the server
+server.listen(config.port, function (){
+  console.log('The server is listening on port '+config.port+' in ' + config.envName + ' mode');
 });
