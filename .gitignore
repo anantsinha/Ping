@@ -105,6 +105,9 @@ typings/
 .serverless
 # End of https://www.gitignore.io/api/node,macos
 
+#https keys
+/https/*
+
 #Test files
 i2.js
 i3.js
