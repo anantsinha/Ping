@@ -5,14 +5,14 @@
 
 // Dependencies
 let http = require('http');
-var https = require('https');
-var url = require('url');
-var StringDecoder = require('string_decoder').StringDecoder;
-var config = require('./config');
-var fs = require('fs');
+let https = require('https');
+let url = require('url');
+let StringDecoder = require('string_decoder').StringDecoder;
+let config = require('./config');
+let fs = require('fs');
 
  // Instantiate the HTTP server
-var httpServer = http.createServer((req,res)=>{
+let httpServer = http.createServer((req,res)=>{
   unifiedServer(req,res);
 });
 
@@ -22,11 +22,11 @@ httpServer.listen(config.httpPort,()=>{
 });
 
 // Instantiate the HTTPS server
-var httpsServerOptions = {
+let httpsServerOptions = {
   'key': fs.readFileSync('./https/key.pem'),
   'cert': fs.readFileSync('./https/cert.pem')
 };
-var httpsServer = https.createServer(httpsServerOptions,(req,res)=>{
+let httpsServer = https.createServer(httpsServerOptions,(req,res)=>{
   unifiedServer(req,res);
 });
 
@@ -36,27 +36,27 @@ httpsServer.listen(config.httpsPort,()=>{
 });
 
 // All the server logic for both the http and https server
-var unifiedServer = (req,res)=>{
+let unifiedServer = (req,res)=>{
 
   // Parse the url
-  var parsedUrl = url.parse(req.url, true);
+  let parsedUrl = url.parse(req.url, true);
 
   // Get the path
-  var path = parsedUrl.pathname;
-  var trimmedPath = path.replace(/^\/+|\/+$/g, '');
+  let path = parsedUrl.pathname;
+  let trimmedPath = path.replace(/^\/+|\/+$/g, '');
 
   // Get the query string as an object
-  var queryStringObject = parsedUrl.query;
+  let queryStringObject = parsedUrl.query;
 
   // Get the HTTP method
-  var method = req.method.toLowerCase();
+  let method = req.method.toLowerCase();
 
   //Get the headers as an object
-  var headers = req.headers;
+  let headers = req.headers;
 
   // Get the payload,if any
-  var decoder = new StringDecoder('utf-8');
-  var buffer = '';
+  let decoder = new StringDecoder('utf-8');
+  let buffer = '';
   req.on('data', (data)=> {
       buffer += decoder.write(data);
   });
@@ -64,10 +64,10 @@ var unifiedServer = (req,res)=>{
       buffer += decoder.end();
 
       // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
-      var chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
+      let chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
 
       // Construct the data object to send to the handler
-      var data = {
+      let data = {
         'trimmedPath' : trimmedPath,
         'queryStringObject' : queryStringObject,
         'method' : method,
@@ -85,7 +85,7 @@ var unifiedServer = (req,res)=>{
         payload = typeof(payload) == 'object'? payload : {};
 
         // Convert the payload to a string
-        var payloadString = JSON.stringify(payload);
+        let payloadString = JSON.stringify(payload);
 
         // Return the response
         res.setHeader('Content-Type', 'application/json');
@@ -94,24 +94,5 @@ var unifiedServer = (req,res)=>{
         console.log("Returning this response: ",statusCode,payloadString);
 
       });
-
   });
-};
-
-// Define all the handlers
-var handlers = {};
-
-// Sample handler
-handlers.sample = (data,callback)=>{
-    callback(406,{'name':'sample handler'});
-};
-
-// Not found handler
-handlers.notFound = (data,callback)=>{
-  callback(404);
-};
-
-// Define the request router
-var router = {
-  'sample' : handlers.sample
 };
