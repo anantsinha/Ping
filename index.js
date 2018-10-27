@@ -4,21 +4,20 @@
  */
 
 // Dependencies
-var http = require('http');
+let http = require('http');
 var https = require('https');
 var url = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
 var config = require('./config');
 var fs = require('fs');
 
-
  // Instantiate the HTTP server
-var httpServer = http.createServer(function(req,res){
+var httpServer = http.createServer((req,res)=>{
   unifiedServer(req,res);
 });
 
 // Start the HTTP server
-httpServer.listen(config.httpPort,function(){
+httpServer.listen(config.httpPort,()=>{
   console.log('The HTTP server is running on port '+config.httpPort);
 });
 
@@ -27,17 +26,17 @@ var httpsServerOptions = {
   'key': fs.readFileSync('./https/key.pem'),
   'cert': fs.readFileSync('./https/cert.pem')
 };
-var httpsServer = https.createServer(httpsServerOptions,function(req,res){
+var httpsServer = https.createServer(httpsServerOptions,(req,res)=>{
   unifiedServer(req,res);
 });
 
 // Start the HTTPS server
-httpsServer.listen(config.httpsPort,function(){
+httpsServer.listen(config.httpsPort,()=>{
  console.log('The HTTPS server is running on port '+config.httpsPort);
 });
 
 // All the server logic for both the http and https server
-var unifiedServer = function(req,res){
+var unifiedServer = (req,res)=>{
 
   // Parse the url
   var parsedUrl = url.parse(req.url, true);
@@ -58,10 +57,10 @@ var unifiedServer = function(req,res){
   // Get the payload,if any
   var decoder = new StringDecoder('utf-8');
   var buffer = '';
-  req.on('data', function(data) {
+  req.on('data', (data)=> {
       buffer += decoder.write(data);
   });
-  req.on('end', function() {
+  req.on('end', () => {
       buffer += decoder.end();
 
       // Check the router for a matching path for a handler. If one is not found, use the notFound handler instead.
@@ -77,7 +76,7 @@ var unifiedServer = function(req,res){
       };
 
       // Route the request to the handler specified in the router
-      chosenHandler(data,function(statusCode,payload){
+      chosenHandler(data,(statusCode,payload) => {
 
         // Use the status code returned from the handler, or set the default status code to 200
         statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
@@ -103,12 +102,12 @@ var unifiedServer = function(req,res){
 var handlers = {};
 
 // Sample handler
-handlers.sample = function(data,callback){
+handlers.sample = (data,callback)=>{
     callback(406,{'name':'sample handler'});
 };
 
 // Not found handler
-handlers.notFound = function(data,callback){
+handlers.notFound = (data,callback)=>{
   callback(404);
 };
 
