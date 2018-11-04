@@ -8,8 +8,10 @@ let http = require('http');
 let https = require('https');
 let url = require('url');
 let StringDecoder = require('string_decoder').StringDecoder;
-let config = require('./config');
+let config = require('./lib/config');
 let fs = require('fs');
+let handlers = require('./lib/handlers');
+let helpers = require('./lib/helpers');
 
  // Instantiate the HTTP server
 let httpServer = http.createServer((req,res)=>{
@@ -72,7 +74,7 @@ let unifiedServer = (req,res)=>{
         'queryStringObject' : queryStringObject,
         'method' : method,
         'headers' : headers,
-        'payload' : buffer
+        // 'payload' : helpers.parseJsonToObject(buffer),
       };
 
       // Route the request to the handler specified in the router
@@ -95,4 +97,10 @@ let unifiedServer = (req,res)=>{
 
       });
   });
+};
+
+//Define a request router
+let router = {
+  'ping': handlers.ping,
+  'users': handlers.users,
 };
